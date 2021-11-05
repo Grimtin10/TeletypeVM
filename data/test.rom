@@ -1,0 +1,29 @@
+public class CPU{
+  char[] RAM = new char[65536];
+  
+  char a = 0x0000;
+  char b = 0x0000;
+  char c = 0x0000;
+  char d = 0x0000;
+  
+  char PC = 0x0000;
+  
+  ArrayList<Character> stack = new ArrayList<Character>();
+  
+  public CPU(){
+    
+  }
+  
+  public void loadROM(String name){
+    byte[] bytes = loadBytes(name+".rom");
+    if(bytes.length <= RAM.length/2){
+      println("Loading ROM. Size: " + bytes.length + " bytes.");
+    } else {
+      System.err.println("Aborting! Max ROM size is " + RAM.length/2 + " bytes. ROM is " + bytes.length + " bytes.");
+    }
+    exit();
+    for(int i=0;i<bytes.length;i++){
+      RAM[i] = (char)((int)bytes[i]);
+    }
+  }
+}
