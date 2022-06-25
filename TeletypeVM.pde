@@ -3,16 +3,19 @@ ArrayList<Integer> charRAM = new ArrayList<Integer>();
 color[][] screen;
 boolean[][] changed;
 
-String charsetName = "default";
+String charsetName = "newChars";
 boolean[][][] chars = new boolean[65][8][8];
 
 String ROM = "type_test";
 
 CPU cpu;
 
-int cycles = 100000;
+int cycles = 2200000;
+static boolean verbose = true;
 
 ArrayList<Device> devices = new ArrayList<Device>();
+
+PFont font;
 
 //chars
 //ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$^&*()-=+,.%/\?:'_;[]{}><%(space)
@@ -21,9 +24,9 @@ ArrayList<Device> devices = new ArrayList<Device>();
 void setup() {
   println(this);
   cpu = new CPU();
-  size(640, 640);
-  screen = new color[width][height];
-  changed = new boolean[width][height];
+  size(1280, 640);
+  screen = new color[width/2][height];
+  changed = new boolean[width/2][height];
   for (int x=0; x<screen.length; x++) {
     for (int y=0; y<screen[0].length; y++) {
       screen[x][y] = color(0, 0, 0);
@@ -43,7 +46,16 @@ void setup() {
     }
   }
   cpu.loadASM(ROM);
-  devices.add(new Buzzer((char)0xFFF0, this));
+  
+  String[] romFile = loadStrings(ROM+".asm");
+  Assembler.assemble(romFile);
+  devices.add(new Buzzer((char)0xF000, this));
+  
+  font = createFont("mono.ttf", 128);
+  textFont(font);
+  
+  //frameRate(60);
+  frameRate(100000);
 }
 
 void draw() {
@@ -64,7 +76,7 @@ void draw() {
       }
     }
     curX += 8;
-    if (curX == width) {
+    if (curX == width/2) {
       curY += 8;
       curX = 0;
     }
@@ -86,6 +98,17 @@ void draw() {
         devices.get(i).update();
       }
   }
+  
+  fill(25);
+  rect(640, 0, 640, 640);
+  
+  fill(150);
+  textSize(16);
+  for(int i=0;i<41;i++) {
+    int pc = cpu.pc + (i * 4);
+    
+    text(hex(pc, 4) + ": " + ramString(pc) + " " + ramString(pc + 1) + " " + ramString(pc + 2) + " " + ramString(pc + 3), 640, i*16);
+  }
 
   surface.setTitle("FPS: " + frameRate);
 }
@@ -93,10 +116,10 @@ void draw() {
 void keyPressed(){
   if(cpu.keyJumpSet){
     cpu.d = (char)keyCode;
-    println(hex(cpu.d, 2), key);
     cpu.keyJumped = true;
     cpu.keyPC = cpu.keyJump;
   }
+  //f5
   if(keyCode == 116){
     byte[] bytes = new byte[cpu.RAM.length];
     for(int i=0;i<bytes.length;i++){
@@ -104,6 +127,10 @@ void keyPressed(){
     }
     saveBytes("ramDump.ram", bytes);
   }
+}
+
+String ramString(int index) {
+  return hex(cpu.RAM[index], 2);
 }
 
 void handleCPU() {

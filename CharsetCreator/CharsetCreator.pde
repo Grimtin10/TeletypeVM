@@ -1,5 +1,5 @@
 boolean charsetEdit = true;
-String charsetName = "default";
+String charsetName = "newChars";
 boolean load = true;
 int curChar = 0;
 boolean[][][] chars = new boolean[64][8][8];
@@ -7,7 +7,7 @@ boolean[][][] chars = new boolean[64][8][8];
 void setup(){
   size(500, 500);
   if(load){
-    String[] temp = loadStrings(charsetName+".tmpset");
+    String[] temp = loadStrings(charsetName+".charset");
     for(int i=0;i<temp.length;i++){
       String[] temp2 = temp[i].split(" ");
       for(int j=0;j<temp2.length;j++){
@@ -28,22 +28,25 @@ void draw(){
         rect(x*width/8, y*height/8, width/8, height/8);
       }
     }
-    fill(255);
+    fill(200, 200);
     rect((mouseX/(width/8))*width/8, (mouseY/(height/8))*height/8, width/8, height/8);
   }
   surface.setTitle("Current Char: " + curChar);
 }
 
 void mousePressed(){
+  saveChars("autosave");
   chars[curChar][(mouseX/(width/8))][(mouseY/(height/8))] = !chars[curChar][(mouseX/(width/8))][(mouseY/(height/8))];
 }
 
 void keyPressed(){
   if(keyCode == LEFT && curChar > 0){
     curChar--;
+    saveChars(charsetName);
   }
   if(keyCode == RIGHT && curChar < chars.length-1){
     curChar++;
+    saveChars(charsetName);
   }
   if(keyCode == ENTER){
     saveChars(charsetName);
@@ -63,5 +66,5 @@ void saveChars(String name){
     }
     the.add(temp);
   }
-  saveStrings(name+".tmpset", the.toArray(new String[the.size()]));
+  saveStrings(name+".charset", the.toArray(new String[the.size()]));
 }
