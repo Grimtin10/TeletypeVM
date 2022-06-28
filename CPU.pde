@@ -30,8 +30,8 @@ public class CPU {
       System.err.println("Aborting! Max ROM size is " + RAM.length/2 + " chars. ROM is " + chars.length + " chars.");
       exit();
     }
-    for (int i=0; i<chars.length; i++) {
-      RAM[i] = (char)((int)chars[i]);
+    for (int i=0; i<RAM.length; i++) {
+      RAM[i] = (char)int(random(22));//((int)chars[i]);
     }
   }
 
@@ -49,6 +49,7 @@ public class CPU {
         if (file[i].charAt(0) == ':') {
           if (!labelMap.containsKey(file[i]) && !labelMap.containsValue(pos)) {
             labelMap.put(file[i], pos);
+            println(file[i], hex(pos, 4));
           } else {
             System.err.println("Duplicate label " + file[i] + " at pos " + hex(pos, 4));
           }
@@ -126,22 +127,22 @@ public class CPU {
         if (line[1].charAt(0)=='R') {
           if (line[1].charAt(1)=='A') {
             result.add((char)0x04);
-            result.add((char)0x01);
+            result.add((char)0x00);
             result.add(hexStringToByteArray(line[2])[0]);
             result.add(hexStringToByteArray(line[2])[1]);
           } else if (line[1].charAt(1)=='B') {
             result.add((char)0x04);
-            result.add((char)0x02);
+            result.add((char)0x01);
             result.add(hexStringToByteArray(line[2])[0]);
             result.add(hexStringToByteArray(line[2])[1]);
           } else if (line[1].charAt(1)=='C') {
             result.add((char)0x04);
-            result.add((char)0x03);
+            result.add((char)0x02);
             result.add(hexStringToByteArray(line[2])[0]);
             result.add(hexStringToByteArray(line[2])[1]);
           } else if (line[1].charAt(1)=='D') {
             result.add((char)0x04);
-            result.add((char)0x04);
+            result.add((char)0x03);
             result.add(hexStringToByteArray(line[2])[0]);
             result.add(hexStringToByteArray(line[2])[1]);
           } else {
@@ -274,9 +275,9 @@ public class CPU {
     saveBytes("assembled.rom", bytes);
 
     if (bytes.length <= RAM.length/2) {
-      println("Loading Assembly File " + name + ".asm Size: " + bytes.length + " chars.");
+      println("Loading Assembly File " + name + ".asm Size: " + bytes.length + " bytes.");
     } else {
-      System.err.println("Aborting! Max ROM size is " + RAM.length/2 + " chars. Assembled ROM is " + bytes.length + " chars.");
+      System.err.println("Aborting! Max ROM size is " + RAM.length/2 + " bytes. Assembled ROM is " + bytes.length + " bytes.");
       exit();
     }
 
@@ -289,6 +290,7 @@ public class CPU {
     if (keyJumped) {
       pc = keyPC;
       keyJumped = false;
+      println("jumping to", hex(keyPC, 4));
     }
     char opcode = (char)(RAM[pc] & 0x00FF);
     switch(opcode) {
@@ -316,9 +318,7 @@ public class CPU {
         char operation = (char)(RAM[pc+1] & 0x00FF);
         switch(operation) {
         case 0x00:
-          println("mov", hex((char)((RAM[pc + 2] << 8) | (RAM[pc + 3])), 4));
           a = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-          println("a", hex(a, 4));
           break;
         case 0x01:
           b = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
@@ -357,6 +357,7 @@ public class CPU {
           d = c;
           break;
         case 0x0D:
+          println(hex(a, 4), hex(d, 4));
           a = d;
           break;
         case 0x0E:
@@ -366,7 +367,7 @@ public class CPU {
           c = d;
           break;
         case 0x10:
-          a = (char)((RAM[b] << 8) | (RAM[c]));
+          a = (char)((RAM[b] << 8) | (RAM[b + 1]));
           break;
         case 0x11:
           println("MOV a: " + hex(a, 4) + " to " + hex((char)((RAM[pc + 2] << 8) | (RAM[pc + 3])), 4));
@@ -519,6 +520,7 @@ public class CPU {
       break;
     case 0x0D:
       //JMPE (immediate)
+      //println((int)a, (int)b);
       if (a == b) {
         //println("yup", hex((char)(((RAM[pc + 1] << 8) | (RAM[pc + 2]))-4), 4), hex(RAM[pc + 1], 2), hex(RAM[pc + 2], 2), hex(RAM[pc + 1] << 8), hex(RAM[pc + 2] & 0x00FF));
         char temp = (char)((((RAM[pc + 1] << 8) & 0xFF00) | (RAM[pc + 2]) & 0x00FF)-4);
@@ -530,6 +532,7 @@ public class CPU {
       break;
     case 0x0E:
       //JMPE (register)
+      //println((int)a, (int)b, (int)c);
       if (a == b) {
         pc = c;
       }
@@ -545,15 +548,15 @@ public class CPU {
       break;
     case 0x10:
       //CALL
-      RAM[callStackPointer + 0xFEFF] = (char)((pc << 8) & 0xF);
-      RAM[callStackPointer + 0xFF00] = (char)(pc & 0xF);
-      callStackPointer += 2;
-      pc = (char)((RAM[pc + 1] >> 8) | RAM[pc + 2]);
+      //RAM[callStackPointer + 0xFEFF] = (char)((pc << 8) & 0xF);
+      //RAM[callStackPointer + 0xFF00] = (char)(pc & 0xF);
+      //callStackPointer += 2;
+      //pc = (char)((RAM[pc + 1] >> 8) | RAM[pc + 2]);
       break;
     case 0x11:
       //RET
-      pc = (char)((RAM[callStackPointer + 0xFEFF] >> 8) | RAM[callStackPointer + 0xFF00]);
-      callStackPointer -= 2;
+      //pc = (char)((RAM[callStackPointer + 0xFEFF] >> 8) | RAM[callStackPointer + 0xFF00]);
+      //callStackPointer -= 2;
       break;
     case 0x12:
       //SHR
@@ -603,7 +606,7 @@ public class CPU {
         }
         break;
       }
-      case 0x13:
+    case 0x13:
       //SHL
       {
         char operation = (char)(RAM[pc+1] & 0x00FF);
@@ -651,7 +654,7 @@ public class CPU {
         }
         break;
       }
-      case 0x14:
+    case 0x14:
       //OR
       {
         char operation = (char)(RAM[pc+1] & 0x00FF);
@@ -699,7 +702,7 @@ public class CPU {
         }
         break;
       }
-      case 0x15:
+    case 0x15:
       //AND
       {
         char operation = (char)(RAM[pc+1] & 0x00FF);
@@ -747,7 +750,7 @@ public class CPU {
         }
         break;
       }
-      case 0x16:
+    case 0x16:
       //XOR
       {
         char operation = (char)(RAM[pc+1] & 0x00FF);
