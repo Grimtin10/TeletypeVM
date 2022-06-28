@@ -1,7 +1,12 @@
 public static class Assembler {
-  private class Argument {
-    public Argument() {
-      
+  private static class Argument {
+    boolean imm8, imm16, reg, mem;
+    
+    public Argument(boolean imm8, boolean imm16, boolean reg, boolean mem) {
+      this.imm8 = imm8;
+      this.imm16 = imm16;
+      this.reg = reg;
+      this.mem = mem;
     }
   }
   
@@ -31,7 +36,30 @@ public static class Assembler {
   }
   
   Token[] tokens = {
-    //new Token("NOP", 0x00, false, false, false),
+    new Token("NOP",     0x00, new Argument[]{}),
+    new Token("PUSHCHR", 0x01, new Argument[]{}),
+    new Token("POPCHR",  0x02, new Argument[]{}),
+    new Token("JMP",     0x03, new Argument[]{}),
+    new Token("MOV",     0x04, new Argument[]{}),
+    new Token("JMPGT",   0x05, new Argument[]{}),
+    new Token("JMPLT",   0x06, new Argument[]{}),
+    new Token("JMPZ",    0x07, new Argument[]{}),
+    new Token("JMPGT",   0x08, new Argument[]{}),
+    new Token("JMPLT",   0x09, new Argument[]{}),
+    new Token("JMPZ",    0x0A, new Argument[]{}),
+    new Token("ADD",     0x0B, new Argument[]{}),
+    new Token("SUB",     0x0C, new Argument[]{}),
+    new Token("JMPE",    0x0D, new Argument[]{}),
+    new Token("JMPE",    0x0E, new Argument[]{}),
+    new Token("KEYSET",  0x0F, new Argument[]{}),
+    new Token("CALL",    0x10, new Argument[]{}),
+    new Token("RET",     0x11, new Argument[]{}),
+    new Token("SHR",     0x12, new Argument[]{}),
+    new Token("SHL",     0x13, new Argument[]{}),
+    new Token("OR",      0x14, new Argument[]{}),
+    new Token("AND",     0x15, new Argument[]{}),
+    new Token("XOR",     0x16, new Argument[]{}),
+    new Token("HALT",    0xFF, new Argument[]{}),
   };
   
   public static char[] assemble(String[] file) {
@@ -58,4 +86,20 @@ public static class Assembler {
     
     return null;
   }
+  
+  private static Argument imm8               = new Argument(true,  false, false, false);
+  private static Argument imm16              = new Argument(false, true,  false, false);
+  private static Argument reg                = new Argument(false, false, true,  false);
+  private static Argument mem                = new Argument(false, false, false, true);
+  private static Argument imm8_imm16         = new Argument(true,  true,  false, false);
+  private static Argument imm8_reg           = new Argument(true,  false, true,  false);
+  private static Argument imm8_mem           = new Argument(true,  false, false, true);
+  private static Argument imm16_reg          = new Argument(false, true,  true,  false);
+  private static Argument imm16_mem          = new Argument(false, true,  false, true);
+  private static Argument reg_mem            = new Argument(false, false, false, true);
+  private static Argument imm8_imm16_reg     = new Argument(true,  true,  true,  false);
+  private static Argument imm8_imm16_mem     = new Argument(true,  true,  false, true);
+  private static Argument imm8_reg_mem       = new Argument(true,  false, false, true);
+  private static Argument imm16_reg_mem      = new Argument(false, true,  false, true);
+  private static Argument imm8_imm16_reg_mem = new Argument(true,  true,  true,  true);
 }

@@ -30,8 +30,8 @@ public class CPU {
       System.err.println("Aborting! Max ROM size is " + RAM.length/2 + " chars. ROM is " + chars.length + " chars.");
       exit();
     }
-    for (int i=0; i<RAM.length; i++) {
-      RAM[i] = (char)int(random(22));//((int)chars[i]);
+    for (int i=0; i<chars.length; i++) {
+      RAM[i] = (char)((int)chars[i]);
     }
   }
 
@@ -547,6 +547,7 @@ public class CPU {
       halt = true;
       break;
     case 0x10:
+    //TODO: fix
       //CALL
       //RAM[callStackPointer + 0xFEFF] = (char)((pc << 8) & 0xF);
       //RAM[callStackPointer + 0xFF00] = (char)(pc & 0xF);
@@ -554,6 +555,7 @@ public class CPU {
       //pc = (char)((RAM[pc + 1] >> 8) | RAM[pc + 2]);
       break;
     case 0x11:
+    //TODO: fix
       //RET
       //pc = (char)((RAM[callStackPointer + 0xFEFF] >> 8) | RAM[callStackPointer + 0xFF00]);
       //callStackPointer -= 2;

@@ -6,7 +6,7 @@ boolean[][] changed;
 String charsetName = "newChars";
 boolean[][][] chars = new boolean[65][8][8];
 
-String ROM = "test (2)";
+String ROM = "type_test";
 
 CPU cpu;
 
@@ -48,11 +48,11 @@ void setup() {
       }
     }
   }
-  cpu.loadROM(ROM);
+  cpu.loadASM(ROM);
 
-  //String[] romFile = loadStrings(ROM+".asm");
-  //Assembler.assemble(romFile);
-  //devices.add(new Buzzer((char)0xF000, this));
+  String[] romFile = loadStrings(ROM+".asm");
+  Assembler.assemble(romFile);
+  devices.add(new Buzzer((char)0xF000, this));
 
   font = createFont("mono.ttf", 128);
   textFont(font);
