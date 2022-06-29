@@ -37,253 +37,7 @@ public class CPU {
 
   public void loadASM(String name) {
     System.err.println("WARNING: CPU.loadASM() is deprecated! Use Assembler.assemble() instead!");
-
-    String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$^&*()-=+,.%/\\?:'_;[]{}><% ";
-    ArrayList<Character> result = new ArrayList<Character>();
-    HashMap<String, Character> labelMap = new HashMap<String, Character>();
-    String[] file = loadStrings(name+".asm");
-    //label processing
-    char pos = 0x0000;
-    for (int i=0; i<file.length; i++) {
-      if (file[i].length() > 0) {
-        if (file[i].charAt(0) == ':') {
-          if (!labelMap.containsKey(file[i]) && !labelMap.containsValue(pos)) {
-            labelMap.put(file[i], pos);
-            println(file[i], hex(pos, 4));
-          } else {
-            System.err.println("Duplicate label " + file[i] + " at pos " + hex(pos, 4));
-          }
-        } else if (file[i].charAt(0) != ';') {
-          pos += 0x0004;
-        }
-      } else {
-        pos += 0x0004;
-      }
-    }
-    for (int i=0; i<file.length; i++) {
-      String[] line = file[i].split(" ");
-      switch(line[0]) {
-      case "NOP":
-        result.add((char)0x00);
-        result.add((char)0x00);
-        result.add((char)0x00);
-        result.add((char)0x00);
-        break;
-      case "PSHCHR":
-        {
-          if (line[1].charAt(0) == '#') {
-            result.add((char)0x01);
-            result.add(hexStringToByteArray(line[1])[0]);
-            result.add((char)0x00);
-            result.add((char)0x00);
-          } else if (line[1].charAt(0) == '\'') {
-            char _char = 0x00;
-            boolean charFound = false;
-            for (char j=0x00; j<chars.length(); j++) {
-              if (line[1].length() > 1) {
-                if (chars.charAt(j) == line[1].charAt(1)) {
-                  _char = j;
-                  charFound = true;
-                }
-              } else if (line.length > 2) {
-                if (line[2].charAt(0) == '\'') {
-                  _char = (char)(chars.length()-1);
-                  charFound = true;
-                }
-              }
-            }
-            if (charFound) {
-              result.add((char)0x01);
-              result.add(_char);
-              result.add((char)0x00);
-              result.add((char)0x00);
-            }
-          }
-        }
-        break;
-      case "POPCHR":
-        result.add((char)0x02);
-        result.add((char)0x00);
-        result.add((char)0x00);
-        result.add((char)0x00);
-        break;
-      case "JMP":
-        {
-          if (line[1].charAt(0) == '#') {
-            result.add((char)0x03);
-            result.add(hexStringToByteArray(line[1])[0]);
-            result.add(hexStringToByteArray(line[1])[1]);
-            result.add((char)0x00);
-          } else if (line[1].charAt(0) == ':') {
-            result.add((char)0x03);
-            result.add((char)(labelMap.get(line[1]) >> 8));
-            result.add((char)(labelMap.get(line[1]) & 0x00FF));
-            result.add((char)0x00);
-          }
-        }
-        break;
-      case "MOV":
-        //TODO: add proper implementation
-        if (line[1].charAt(0)=='R') {
-          if (line[1].charAt(1)=='A') {
-            result.add((char)0x04);
-            result.add((char)0x00);
-            result.add(hexStringToByteArray(line[2])[0]);
-            result.add(hexStringToByteArray(line[2])[1]);
-          } else if (line[1].charAt(1)=='B') {
-            result.add((char)0x04);
-            result.add((char)0x01);
-            result.add(hexStringToByteArray(line[2])[0]);
-            result.add(hexStringToByteArray(line[2])[1]);
-          } else if (line[1].charAt(1)=='C') {
-            result.add((char)0x04);
-            result.add((char)0x02);
-            result.add(hexStringToByteArray(line[2])[0]);
-            result.add(hexStringToByteArray(line[2])[1]);
-          } else if (line[1].charAt(1)=='D') {
-            result.add((char)0x04);
-            result.add((char)0x03);
-            result.add(hexStringToByteArray(line[2])[0]);
-            result.add(hexStringToByteArray(line[2])[1]);
-          } else {
-            System.err.println("Invalid register!");
-          }
-        } else {
-          result.add((char)0x04);
-          result.add(hexStringToByteArray(line[1])[0]);
-          result.add(hexStringToByteArray(line[2])[0]);
-          result.add(hexStringToByteArray(line[2])[1]);
-        }
-        break;
-      case "JMPGT":
-        if (line[1].charAt(0) == '#') {
-          result.add((char)0x05);
-          result.add(hexStringToByteArray(line[1])[0]);
-          result.add(hexStringToByteArray(line[1])[1]);
-          result.add((char)0x00);
-        } else if (line[1].charAt(0) == ':') {
-          result.add((char)0x05);
-          result.add((char)(labelMap.get(line[1]) >> 8));
-          result.add((char)(labelMap.get(line[1]) & 0x00FF));
-          result.add((char)0x00);
-        } else {
-          result.add((char)0x08);
-          result.add((char)0x00);
-          result.add((char)0x00);
-          result.add((char)0x00);
-        }
-        break;
-      case "JMPLT":
-        if (line[1].charAt(0) == '#') {
-          result.add((char)0x06);
-          result.add(hexStringToByteArray(line[1])[0]);
-          result.add(hexStringToByteArray(line[1])[1]);
-          result.add((char)0x00);
-        } else if (line[1].charAt(0) == ':') {
-          result.add((char)0x06);
-          result.add((char)(labelMap.get(line[1]) >> 8));
-          result.add((char)(labelMap.get(line[1]) & 0x00FF));
-          result.add((char)0x00);
-        } else {
-          result.add((char)0x09);
-          result.add((char)0x00);
-          result.add((char)0x00);
-          result.add((char)0x00);
-        }
-        break;
-      case "JMPZ":
-        if (line[1].charAt(0) == '#') {
-          result.add((char)0x07);
-          result.add(hexStringToByteArray(line[1])[0]);
-          result.add(hexStringToByteArray(line[1])[1]);
-          result.add((char)0x00);
-        } else if (line[1].charAt(0) == ':') {
-          result.add((char)0x07);
-          result.add((char)(labelMap.get(line[1]) >> 8));
-          result.add((char)(labelMap.get(line[1]) & 0x00FF));
-          result.add((char)0x00);
-        } else {
-          result.add((char)0x0A);
-          result.add((char)0x00);
-          result.add((char)0x00);
-          result.add((char)0x00);
-        }
-        break;
-      case "ADD":
-        //TODO: add proper implementation
-        result.add((char)0x0B);
-        result.add(hexStringToByteArray(line[1])[0]);
-        result.add(hexStringToByteArray(line[2])[0]);
-        result.add(hexStringToByteArray(line[2])[1]);
-        break;
-      case "SUB":
-        //TODO: add proper implementation
-        result.add((char)0x0C);
-        result.add(hexStringToByteArray(line[1])[0]);
-        result.add(hexStringToByteArray(line[2])[0]);
-        result.add(hexStringToByteArray(line[2])[1]);
-        break;
-      case "JMPE":
-        if (line[1].charAt(0) == '#') {
-          result.add((char)0x0D);
-          result.add(hexStringToByteArray(line[1])[0]);
-          result.add(hexStringToByteArray(line[1])[1]);
-          result.add((char)0x00);
-        } else if (line[1].charAt(0) == ':') {
-          if (labelMap.containsKey(line[1])) {
-            result.add((char)0x0D);
-            result.add((char)(labelMap.get(line[1]) >> 8));
-            result.add((char)((labelMap.get(line[1])) & 0x00FF));
-            result.add((char)0x00);
-          } else {
-            System.err.println("Invalid label " + line[1]);
-            exit();
-          }
-        } else {
-          result.add((char)0x0E);
-          result.add((char)0x00);
-          result.add((char)0x00);
-          result.add((char)0x00);
-        }
-        break;
-      case "KEYSET":
-        if (line[1].charAt(0) == '#') {
-          result.add((char)0x0F);
-          result.add(hexStringToByteArray(line[1])[0]);
-          result.add(hexStringToByteArray(line[1])[1]);
-          result.add((char)0x00);
-        } else if (line[1].charAt(0) == ':') {
-          result.add((char)0x0F);
-          result.add((char)(labelMap.get(line[1]) >> 8));
-          result.add((char)(labelMap.get(line[1]) & 0x00FF));
-          result.add((char)0x00);
-        }
-        break;
-      case "HALT":
-        result.add((char)0xFF);
-        result.add((char)0x00);
-        result.add((char)0x00);
-        result.add((char)0x00);
-        break;
-      }
-    }
-    byte[] bytes = new byte[result.size()];
-    for (int i=0; i<bytes.length; i++) {
-      bytes[i] = (byte)(char)result.get(i);
-    }
-
-    saveBytes("assembled.rom", bytes);
-
-    if (bytes.length <= RAM.length/2) {
-      println("Loading Assembly File " + name + ".asm Size: " + bytes.length + " bytes.");
-    } else {
-      System.err.println("Aborting! Max ROM size is " + RAM.length/2 + " bytes. Assembled ROM is " + bytes.length + " bytes.");
-      exit();
-    }
-
-    for (int i=0; i<result.size(); i++) {
-      RAM[i] = result.get(i);
-    }
+    exit();
   }
 
   public void tick() {
@@ -313,212 +67,216 @@ public class CPU {
       pc = (char)((RAM[pc + 1] << 8) | (RAM[pc + 2])-4);
       break;
     case 0x04:
-      //MOV
+      //MOV (register)
       {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
         case 0x00:
-          a = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+          val = a;
           break;
         case 0x01:
-          b = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+          val = b;
           break;
         case 0x02:
-          c = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+          val = c;
           break;
         case 0x03:
-          d = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+          val = d;
           break;
-        case 0x04:
-          b = a;
+        }
+        switch(reg2) {
+        case 0x00:
+          a = val;
           break;
-        case 0x05:
-          c = a;
+        case 0x01:
+          a = val;
           break;
-        case 0x06:
-          d = a;
+        case 0x02:
+          a = val;
           break;
-        case 0x07:
-          a = b;
+        case 0x03:
+          a = val;
           break;
-        case 0x08:
-          c = b;
+        }
+      }
+    case 0x05:
+      //MOV (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
+        case 0x00:
+          a = val;
           break;
-        case 0x09:
-          d = b;
+        case 0x01:
+          b = val;
           break;
-        case 0x0A:
-          a = c;
+        case 0x02:
+          c = val;
           break;
-        case 0x0B:
-          b = c;
-          break;
-        case 0x0C:
-          d = c;
-          break;
-        case 0x0D:
-          println(hex(a, 4), hex(d, 4));
-          a = d;
-          break;
-        case 0x0E:
-          b = d;
-          break;
-        case 0x0F:
-          c = d;
-          break;
-        case 0x10:
-          a = (char)((RAM[b] << 8) | (RAM[b + 1]));
-          break;
-        case 0x11:
-          println("MOV a: " + hex(a, 4) + " to " + hex((char)((RAM[pc + 2] << 8) | (RAM[pc + 3])), 4));
-          RAM[(char)((RAM[pc + 2] << 8) | (RAM[pc + 3]))] = a;
-          println(hex(RAM[(char)((RAM[pc + 2] << 8) | (RAM[pc + 3]))], 4), hex(RAM[pc+2] << 8, 4), hex(RAM[pc+3], 4));
-        case 0x12:
-          RAM[(char)((RAM[pc + 2] << 8) | (RAM[pc + 3]))] = b;
-        case 0x13:
-          RAM[(char)((RAM[pc + 2] << 8) | (RAM[pc + 3]))] = c;
-        case 0x14:
-          RAM[(char)((RAM[pc + 2] << 8) | (RAM[pc + 3]))] = d;
-          break;
-        default:
-          System.err.println("Invalid register operation " + hex(RAM[pc+1], 2));
+        case 0x03:
+          d = val;
           break;
         }
         break;
       }
-    case 0x05:
+    case 0x06:
       //JMPGT (immediate)
       if (a > b) {
         pc = (char)((RAM[pc + 1] << 8) | (RAM[pc + 2])-4);
       }
       break;
-    case 0x06:
+    case 0x07:
       //JMPLT (immediate)
       if (a < b) {
         pc = (char)((RAM[pc + 1] << 8) | (RAM[pc + 2])-4);
       }
       break;
-    case 0x07:
+    case 0x08:
       //JMPZ (immediate)
       if (a == 0) {
         pc = (char)((RAM[pc + 1] << 8) | (RAM[pc + 2])-4);
       }
       break;
-    case 0x08:
+    case 0x09:
       //JMPGT (register)
       if (a > b) {
         pc = c;
       }
       break;
-    case 0x09:
+    case 0x0A:
       //JMPLT (register)
       if (a < b) {
         pc = c;
       }
       break;
-    case 0x0A:
+    case 0x0B:
       //JMPZ (register)
       if (a == 0) {
         pc = c;
       }
       break;
-    case 0x0B:
-      //ADD
-      {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
-        case 0x00:
-          a += a;
-        case 0x01:
-          a += b;
-        case 0x02:
-          a += c;
-        case 0x03:
-          a += d;
-        case 0x04:
-          b += a;
-        case 0x05:
-          b += b;
-        case 0x06:
-          b += c;
-        case 0x07:
-          b += d;
-        case 0x08:
-          c += a;
-        case 0x09:
-          c += b;
-        case 0x0A:
-          c += c;
-        case 0x0B:
-          c += d;
-        case 0x0C:
-          d += a;
-        case 0x0D:
-          d += b;
-        case 0x0E:
-          d += c;
-        case 0x0F:
-          d += d;
-        case 0x10:
-          a += (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x11:
-          b += (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x12:
-          c += (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x13:
-          d += (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        }
-      }
-      break;
     case 0x0C:
-      //SUB
+      //ADD (register)
       {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
         case 0x00:
-          a -= a;
+          val = a;
+          break;
         case 0x01:
-          a -= b;
+          val = b;
+          break;
         case 0x02:
-          a -= c;
+          val = c;
+          break;
         case 0x03:
-          a -= d;
-        case 0x04:
-          b -= a;
-        case 0x05:
-          b -= b;
-        case 0x06:
-          b -= c;
-        case 0x07:
-          b -= d;
-        case 0x08:
-          c -= a;
-        case 0x09:
-          c -= b;
-        case 0x0A:
-          c -= c;
-        case 0x0B:
-          c -= d;
-        case 0x0C:
-          d -= a;
-        case 0x0D:
-          d -= b;
-        case 0x0E:
-          d -= c;
-        case 0x0F:
-          d -= d;
-        case 0x10:
-          a -= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x11:
-          b -= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x12:
-          c -= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x13:
-          d -= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          a = val;
+          break;
+        case 0x02:
+          a = val;
+          break;
+        case 0x03:
+          a = val;
+          break;
         }
       }
-      break;
     case 0x0D:
+      //ADD (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          b = val;
+          break;
+        case 0x02:
+          c = val;
+          break;
+        case 0x03:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0x0E:
+      //SUB (register)
+      {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
+        case 0x00:
+          val = a;
+          break;
+        case 0x01:
+          val = b;
+          break;
+        case 0x02:
+          val = c;
+          break;
+        case 0x03:
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          a = val;
+          break;
+        case 0x02:
+          a = val;
+          break;
+        case 0x03:
+          a = val;
+          break;
+        }
+      }
+    case 0x0F:
+      //SUB (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          b = val;
+          break;
+        case 0x02:
+          c = val;
+          break;
+        case 0x03:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0x10:
       //JMPE (immediate)
       //println((int)a, (int)b);
       if (a == b) {
@@ -530,276 +288,326 @@ public class CPU {
         //println("nope", "a", hex(a, 4), "b", hex(b, 4));
       }
       break;
-    case 0x0E:
+    case 0x11:
       //JMPE (register)
       //println((int)a, (int)b, (int)c);
       if (a == b) {
         pc = c;
       }
       break;
-    case 0x0F:
+    case 0x12:
       //KEYSET
       keyJumpSet = true;
       keyJump = (char)((RAM[pc + 1] << 8) | (RAM[pc + 2]));
       break;
-      case (char)0xFF:
-      //HALT
-      halt = true;
-      break;
-    case 0x10:
-    //TODO: fix
+    case 0x13:
+      //TODO: fix
       //CALL
       //RAM[callStackPointer + 0xFEFF] = (char)((pc << 8) & 0xF);
       //RAM[callStackPointer + 0xFF00] = (char)(pc & 0xF);
       //callStackPointer += 2;
       //pc = (char)((RAM[pc + 1] >> 8) | RAM[pc + 2]);
       break;
-    case 0x11:
-    //TODO: fix
+    case 0x14:
+      //TODO: fix
       //RET
       //pc = (char)((RAM[callStackPointer + 0xFEFF] >> 8) | RAM[callStackPointer + 0xFF00]);
       //callStackPointer -= 2;
       break;
-    case 0x12:
-      //SHR
-      {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
-        case 0x00:
-          a >>= a;
-        case 0x01:
-          a >>= b;
-        case 0x02:
-          a >>= c;
-        case 0x03:
-          a >>= d;
-        case 0x04:
-          b >>= a;
-        case 0x05:
-          b >>= b;
-        case 0x06:
-          b >>= c;
-        case 0x07:
-          b >>= d;
-        case 0x08:
-          c >>= a;
-        case 0x09:
-          c >>= b;
-        case 0x0A:
-          c >>= c;
-        case 0x0B:
-          c >>= d;
-        case 0x0C:
-          d >>= a;
-        case 0x0D:
-          d >>= b;
-        case 0x0E:
-          d >>= c;
-        case 0x0F:
-          d >>= d;
-        case 0x10:
-          a >>= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x11:
-          b >>= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x12:
-          c >>= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x13:
-          d >>= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        }
-        break;
-      }
-    case 0x13:
-      //SHL
-      {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
-        case 0x00:
-          a <<= a;
-        case 0x01:
-          a <<= b;
-        case 0x02:
-          a <<= c;
-        case 0x03:
-          a <<= d;
-        case 0x04:
-          b <<= a;
-        case 0x05:
-          b <<= b;
-        case 0x06:
-          b <<= c;
-        case 0x07:
-          b <<= d;
-        case 0x08:
-          c <<= a;
-        case 0x09:
-          c <<= b;
-        case 0x0A:
-          c <<= c;
-        case 0x0B:
-          c <<= d;
-        case 0x0C:
-          d <<= a;
-        case 0x0D:
-          d <<= b;
-        case 0x0E:
-          d <<= c;
-        case 0x0F:
-          d <<= d;
-        case 0x10:
-          a <<= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x11:
-          b <<= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x12:
-          c <<= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x13:
-          d <<= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        }
-        break;
-      }
-    case 0x14:
-      //OR
-      {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
-        case 0x00:
-          a |= a;
-        case 0x01:
-          a |= b;
-        case 0x02:
-          a |= c;
-        case 0x03:
-          a |= d;
-        case 0x04:
-          b |= a;
-        case 0x05:
-          b |= b;
-        case 0x06:
-          b |= c;
-        case 0x07:
-          b |= d;
-        case 0x08:
-          c |= a;
-        case 0x09:
-          c |= b;
-        case 0x0A:
-          c |= c;
-        case 0x0B:
-          c |= d;
-        case 0x0C:
-          d |= a;
-        case 0x0D:
-          d |= b;
-        case 0x0E:
-          d |= c;
-        case 0x0F:
-          d |= d;
-        case 0x10:
-          a |= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x11:
-          b |= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x12:
-          c |= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x13:
-          d |= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        }
-        break;
-      }
     case 0x15:
-      //AND
+      //SHR (register)
       {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
         case 0x00:
-          a &= a;
+          val = a;
+          break;
         case 0x01:
-          a &= b;
+          val = b;
+          break;
         case 0x02:
-          a &= c;
+          val = c;
+          break;
         case 0x03:
-          a &= d;
-        case 0x04:
-          b &= a;
-        case 0x05:
-          b &= b;
-        case 0x06:
-          b &= c;
-        case 0x07:
-          b &= d;
-        case 0x08:
-          c &= a;
-        case 0x09:
-          c &= b;
-        case 0x0A:
-          c &= c;
-        case 0x0B:
-          c &= d;
-        case 0x0C:
-          d &= a;
-        case 0x0D:
-          d &= b;
-        case 0x0E:
-          d &= c;
-        case 0x0F:
-          d &= d;
-        case 0x10:
-          a &= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x11:
-          b &= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x12:
-          c &= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x13:
-          d &= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+          val = d;
+          break;
         }
-        break;
+        switch(reg2) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          a = val;
+          break;
+        case 0x02:
+          a = val;
+          break;
+        case 0x03:
+          a = val;
+          break;
+        }
       }
     case 0x16:
-      //XOR
+      //SHR (immediate)
       {
-        char operation = (char)(RAM[pc+1] & 0x00FF);
-        switch(operation) {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
         case 0x00:
-          a ^= a;
+          a = val;
+          break;
         case 0x01:
-          a ^= b;
+          b = val;
+          break;
         case 0x02:
-          a ^= c;
+          c = val;
+          break;
         case 0x03:
-          a ^= d;
-        case 0x04:
-          b ^= a;
-        case 0x05:
-          b ^= b;
-        case 0x06:
-          b ^= c;
-        case 0x07:
-          b ^= d;
-        case 0x08:
-          c ^= a;
-        case 0x09:
-          c ^= b;
-        case 0x0A:
-          c ^= c;
-        case 0x0B:
-          c ^= d;
-        case 0x0C:
-          d ^= a;
-        case 0x0D:
-          d ^= b;
-        case 0x0E:
-          d ^= c;
-        case 0x0F:
-          d ^= d;
-        case 0x10:
-          a ^= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x11:
-          b ^= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x12:
-          c ^= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        case 0x13:
-          d ^= (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+          d = val;
+          break;
         }
         break;
       }
+    case 0x17:
+      //SHL (register)
+      {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
+        case 0x00:
+          val = a;
+          break;
+        case 0x01:
+          val = b;
+          break;
+        case 0x02:
+          val = c;
+          break;
+        case 0x03:
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          a = val;
+          break;
+        case 0x02:
+          a = val;
+          break;
+        case 0x03:
+          a = val;
+          break;
+        }
+      }
+    case 0x18:
+      //SHL (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          b = val;
+          break;
+        case 0x02:
+          c = val;
+          break;
+        case 0x03:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0x19:
+      //OR (register)
+      {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
+        case 0x00:
+          val = a;
+          break;
+        case 0x01:
+          val = b;
+          break;
+        case 0x02:
+          val = c;
+          break;
+        case 0x03:
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          a = val;
+          break;
+        case 0x02:
+          a = val;
+          break;
+        case 0x03:
+          a = val;
+          break;
+        }
+      }
+    case 0x1A:
+      //OR (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          b = val;
+          break;
+        case 0x02:
+          c = val;
+          break;
+        case 0x03:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0x1B:
+      //AND (register)
+      {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
+        case 0x00:
+          val = a;
+          break;
+        case 0x01:
+          val = b;
+          break;
+        case 0x02:
+          val = c;
+          break;
+        case 0x03:
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          a = val;
+          break;
+        case 0x02:
+          a = val;
+          break;
+        case 0x03:
+          a = val;
+          break;
+        }
+      }
+    case 0x1C:
+      //AND (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          b = val;
+          break;
+        case 0x02:
+          c = val;
+          break;
+        case 0x03:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0x1D:
+      //XOR (register)
+      {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
+        case 0x00:
+          val = a;
+          break;
+        case 0x01:
+          val = b;
+          break;
+        case 0x02:
+          val = c;
+          break;
+        case 0x03:
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          a = val;
+          break;
+        case 0x02:
+          a = val;
+          break;
+        case 0x03:
+          a = val;
+          break;
+        }
+      }
+    case 0x1E:
+      //XOR (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+        
+        switch(reg) {
+        case 0x00:
+          a = val;
+          break;
+        case 0x01:
+          b = val;
+          break;
+        case 0x02:
+          c = val;
+          break;
+        case 0x03:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0xFF:
+      //HALT
+      halt = true;
+      break;
     default:
       System.err.println("Invalid opcode " + hex(RAM[pc], 2));
       break;
