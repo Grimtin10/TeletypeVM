@@ -34,7 +34,7 @@ public class CPU {
       RAM[i] = (char)((int)chars[i]);
     }
   }
-  
+
   public void load(char[] rom) {
     if (rom.length <= RAM.length/2) {
       println("Loading ROM. Size: " + rom.length + " bytes.");
@@ -98,13 +98,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -113,7 +113,7 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
         switch(reg) {
         case 0x0A:
           a = val;
@@ -192,13 +192,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -207,7 +207,7 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
         switch(reg) {
         case 0x0A:
           a = val;
@@ -250,13 +250,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -265,7 +265,7 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
         switch(reg) {
         case 0x0A:
           a = val;
@@ -346,13 +346,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -361,7 +361,7 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
         switch(reg) {
         case 0x0A:
           a = val;
@@ -404,13 +404,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -419,7 +419,7 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
         switch(reg) {
         case 0x0A:
           a = val;
@@ -462,13 +462,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -477,7 +477,7 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
         switch(reg) {
         case 0x0A:
           a = val;
@@ -520,13 +520,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -535,7 +535,7 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
         switch(reg) {
         case 0x0A:
           a = val;
@@ -578,13 +578,13 @@ public class CPU {
           a = val;
           break;
         case 0x0B:
-          a = val;
+          b = val;
           break;
         case 0x0C:
-          a = val;
+          c = val;
           break;
         case 0x0D:
-          a = val;
+          d = val;
           break;
         }
       }
@@ -593,7 +593,123 @@ public class CPU {
       {
         char reg = (char)(RAM[pc+1] & 0x00FF);
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
-        
+
+        switch(reg) {
+        case 0x0A:
+          a = val;
+          break;
+        case 0x0B:
+          b = val;
+          break;
+        case 0x0C:
+          c = val;
+          break;
+        case 0x0D:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0x1F:
+      //READ (register)
+      {
+        char reg1 = (char)(RAM[pc+1] & 0x00FF);
+        char reg2 = (char)(RAM[pc+2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
+        case 0x0A:
+          val = a;
+          break;
+        case 0x0B:
+          val = b;
+          break;
+        case 0x0C:
+          val = c;
+          break;
+        case 0x0D:
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x0A:
+          a = val;
+          break;
+        case 0x0B:
+          b = val;
+          break;
+        case 0x0C:
+          c = val;
+          break;
+        case 0x0D:
+          d = val;
+          break;
+        }
+      }
+    case 0x20:
+      //READ (immediate)
+      {
+        char reg = (char)(RAM[pc+1] & 0x00FF);
+        char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
+
+        switch(reg) {
+        case 0x0A:
+          a = val;
+          break;
+        case 0x0B:
+          b = val;
+          break;
+        case 0x0C:
+          c = val;
+          break;
+        case 0x0D:
+          d = val;
+          break;
+        }
+        break;
+      }
+    case 0x21:
+      //WRITE (register)
+      {
+        char reg1 = (char)(RAM[pc + 1] & 0x00FF);
+        char reg2 = (char)(RAM[pc + 2] & 0x00FF);
+
+        char val = 0x0000;
+        switch(reg1) {
+        case 0x0A:
+          val = a;
+          break;
+        case 0x0B:
+          val = b;
+          break;
+        case 0x0C:
+          val = c;
+          break;
+        case 0x0D:
+          val = d;
+          break;
+        }
+        switch(reg2) {
+        case 0x0A:
+          a = val;
+          break;
+        case 0x0B:
+          b = val;
+          break;
+        case 0x0C:
+          c = val;
+          break;
+        case 0x0D:
+          d = val;
+          break;
+        }
+      }
+    case 0x22:
+      //WRITE (immediate)
+      {
+        char val = (char)((RAM[pc + 1] << 8) | (RAM[pc + 2]));
+        char reg = (char)(RAM[pc + 3] & 0x00FF);
+
         switch(reg) {
         case 0x0A:
           a = val;
