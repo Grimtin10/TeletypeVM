@@ -11,7 +11,7 @@ String ROM = "type_test";
 CPU cpu;
 
 int cycles = 1;//  500000;
-static boolean verbose = true;
+static int verbose = 1;
 
 float scale = 2;
 

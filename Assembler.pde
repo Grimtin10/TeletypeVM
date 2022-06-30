@@ -50,22 +50,22 @@ public static class Assembler {
 
     public char[] parse(String in) {
       if (match(in)) {
-        println("Parsing string " + in);
+        if(verbose >= 2) println("Parsing string " + in);
         in = in.substring(1);
-        println("Trimmed string to " + in);
+        if(verbose >= 2) println("Trimmed string to " + in);
         if (len % 2 != 0) {
           in = "0" + in;
-          println("Padding string with 0");
+          if(verbose >= 2) println("Padding string with 0");
         }
-        println("Got result: ");
+        if(verbose >= 2) println("Got result: ");
         char[] result = hexStringToByteArray(in);
         for(int i=0;i<result.length;i++) {
-          print(hex(result[i], 2));
+          if(verbose >= 2) print(hex(result[i], 2));
         }
-        println();
+        if (verbose >= 2) println();
         return result;
       } else {
-        throw new IllegalArgumentException("Incorrect input string type for argument.");
+        throw new IllegalArgumentException("Incorrect input string (" + in + ") type for argument.");
       }
     }
   }
@@ -175,9 +175,7 @@ public static class Assembler {
       if (file[i].trim().length() > 0) {
         if (file[i].trim().charAt(0) == ':') {
           labelMap.put(file[i].trim().substring(1), pos);
-          if (verbose) {
-            println("Parser.LabelFinder: found label " + file[i].trim() + " at " + hex(pos, 4));
-          }
+          if(verbose >= 1) println("Parser.LabelFinder: found label " + file[i].trim() + " at " + hex(pos, 4));
         }
         if (file[i].trim().charAt(0) != ';') {
           pos += 0x0004;
@@ -191,12 +189,14 @@ public static class Assembler {
         String[] words = file[i].split(" ");
 
         ArrayList<ArgumentToken> arguments = new ArrayList<ArgumentToken>();
-
+        ArrayList<Integer> indices = new ArrayList<Integer>();
+        
         for (int j=1; j<words.length; j++) {
           for (int k=0; k<argumentTokens.length; k++) {
             if (argumentTokens[k].match(words[j])) {
               arguments.add(argumentTokens[k]);
-              println("Parser.Tokenizer: Found argument " + argumentTokens[k].name + " on line " + i);
+              indices.add(j);
+              if(verbose >= 1) println("Parser.Tokenizer: Found argument " + argumentTokens[k].name + " on line " + i);
             }
           }
         }
@@ -211,12 +211,12 @@ public static class Assembler {
         Argument[] argumentValues = new Argument[args.length];
 
         for (int j=0; j<argumentValues.length; j++) {
-          argumentValues[j] = new Argument(args[j], arguments.get(j).parse(words[j+1]));
+          argumentValues[j] = new Argument(args[j], arguments.get(j).parse(words[indices.get(j)]));
         }
 
         for (int j=0; j<tokens.length; j++) {          
           if (tokens[j].word.equals(words[0]) && tokens[j].match(args)) {
-            println("Parser.Tokenizer: Found token " + words[0] + " on line " + i + " (opcode: " + hex(tokens[j].opcode, 2) + ")");
+            if(verbose >= 1) println("Parser.Tokenizer: Found token " + words[0] + " on line " + i + " (opcode: " + hex(tokens[j].opcode, 2) + ")");
             foundTokens.add(new Token(tokens[j], argumentValues));
             foundToken = true;
             break;
@@ -224,7 +224,7 @@ public static class Assembler {
         }
 
         if (!foundToken) {
-          println("Could not find any tokens on line " + line);
+          if(verbose >= 1) println("Could not find any tokens on line " + line);
         }
       }
     }
