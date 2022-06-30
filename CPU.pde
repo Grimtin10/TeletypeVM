@@ -36,7 +36,7 @@ public class CPU {
   }
 
   public void loadASM(String name) {
-    System.err.println("WARNING: CPU.loadASM() is deprecated! Use Assembler.assemble() instead!");
+    System.err.println("ERROR: CPU.loadASM() is deprecated! Use Assembler.assemble() instead!");
     exit();
   }
 

@@ -11,7 +11,7 @@ String ROM = "type_test";
 CPU cpu;
 
 int cycles = 1;//  500000;
-static int verbose = 1;
+static int verbose = 0;
 
 float scale = 2;
 
@@ -24,7 +24,6 @@ PFont font;
 //0..64
 
 void setup() {
-  println(this);
   cpu = new CPU();
   //size(1280, 720);
   surface.setSize(round(1280 * scale), round(640 * scale));
