@@ -47,10 +47,12 @@ void setup() {
       }
     }
   }
-  cpu.loadASM(ROM);
+  //cpu.loadASM(ROM);
 
   String[] romFile = loadStrings(ROM+".asm");
-  Assembler.assemble(romFile);
+  char[] asm = Assembler.assemble(romFile);
+  cpu.load(asm);
+  
   devices.add(new Buzzer((char)0xF000, this));
 
   font = createFont("mono.ttf", 128);
@@ -116,11 +118,11 @@ void draw() {
   textSize(16*scale);
   for (int i=0; i<41; i++) {
     int pc = cpu.pc + (i * 4);
-    if(pc + 4 < cpu.RAM.length){
+    if (pc + 4 < cpu.RAM.length) {
       text(hex(pc, 4) + ": " + ramString(pc) + " " + ramString(pc + 1) + " " + ramString(pc + 2) + " " + ramString(pc + 3), 640*scale, i*16*scale);
     }
   }
-  
+
   text("A: " + hex(cpu.a, 4), 640*scale+(320*scale), 16*scale);
   text("B: " + hex(cpu.b, 4), 640*scale+(320*scale), 32*scale);
   text("C: " + hex(cpu.c, 4), 640*scale+(320*scale), 48*scale);
@@ -146,7 +148,7 @@ void keyPressed() {
 }
 
 String ramString(int index) {
-  if(index < cpu.RAM.length) {
+  if (index < cpu.RAM.length) {
     return hex(cpu.RAM[index], 2);
   } 
   return "";

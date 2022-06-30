@@ -74,12 +74,12 @@ public static class Assembler {
 
   private static class TokenType {
     String word;
-    byte opcode;
+    char opcode;
     ArgumentType[] arguments;
 
     public TokenType(String word, int opcode, ArgumentType[] arguments) {
       this.word = word;
-      this.opcode = (byte)opcode;
+      this.opcode = (char)opcode;
       this.arguments = arguments;
     }
 
@@ -119,6 +119,21 @@ public static class Assembler {
     public Token(TokenType type, Argument[] args) {
       this.type = type;
       this.args = args;
+    }
+    
+    char[] toMachineCode() {
+      char[] machineCode = new char[4];
+      machineCode[0] = type.opcode;
+      
+      int index = 1;
+      for(int i=0;i<args.length;i++) {
+        for(int j=0;j<args[i].value.length;j++) {
+          machineCode[index] = args[i].value[j];
+          index++;
+        }
+      }
+      
+      return machineCode;
     }
   }
 
@@ -166,7 +181,6 @@ public static class Assembler {
   };
 
   public static char[] assemble(String[] file) {
-    ArrayList<Character> result = new ArrayList<Character>();
     HashMap<String, Character> labelMap = new HashMap<String, Character>();
 
     ArrayList<Token> foundTokens = new ArrayList<Token>();
@@ -176,9 +190,9 @@ public static class Assembler {
       if (file[i].trim().length() > 0) {
         if (file[i].trim().charAt(0) == ':') {
           labelMap.put(file[i].trim().substring(1), pos);
-          if(verbose >= 1) println("Assembler.LabelFinder: found label " + file[i].trim() + " at " + hex(pos, 4));
+          if(verbose >= 1) println("Assembler.LabelFinder: found label " + file[i].trim().substring(1) + " at " + hex(pos, 4));
         }
-        if (file[i].trim().charAt(0) != ';') {
+        if (file[i].trim().charAt(0) != ';' && file[i].trim().charAt(0) != ':') {
           pos += 0x0004;
         }
       }
@@ -193,6 +207,8 @@ public static class Assembler {
         
         //label pre-processing
         for(int j=0;j<_words.length;j++) {
+          boolean good = true;
+          
           if(_words[j].trim().length() > 0) {
             if(_words[j].charAt(0) == ':') {
               if(verbose >= 1) print("Assembler.Preprocessor: Found label word. Converting from " + _words[j]);
@@ -211,11 +227,21 @@ public static class Assembler {
                 }
               }
               
+              if(_words[j].charAt(0) == ';') {
+                for(int k=j;k<_words.length;k++) {
+                  _words[k] = "";
+                }
+                good = false;
+              }
+              
               _words[j] = "#" + hex(findCharIndex(_words[j].charAt(1)), 2);
               if(verbose >= 1) println(" to " + _words[j]);
             }
             
-            processedWords.add(_words[j]);
+            //everythings good, add it
+            if(good) {
+              processedWords.add(_words[j]);
+            }
           }
         }
         
@@ -242,6 +268,7 @@ public static class Assembler {
         }
 
         boolean foundToken = false;
+        boolean foundWord = false;
         
         //get argument values
         Argument[] argumentValues = new Argument[args.length];
@@ -256,6 +283,8 @@ public static class Assembler {
             foundTokens.add(new Token(tokens[j], argumentValues));
             foundToken = true;
             break;
+          } else if(tokens[j].word.equals(words[0])) {
+            foundWord = true;
           }
         }
 
@@ -263,10 +292,24 @@ public static class Assembler {
           if(verbose >= 1) println("Could not find any tokens on line " + line + " (line " + i + ")");
           if(verbose >= 1) { print("(processed line: "); for(int j=0;j<words.length;j++) {print(words[j] + ((j == words.length-1)?"":" "));} println(")");}
         }
+        
+        if(!foundToken && foundWord) {
+          System.err.println("Invalid arguments on line " + i + " (text: " + line + ")");
+          System.exit(1);
+        }
+      }
+    }
+    
+    char[] result = new char[foundTokens.size()*4];
+    
+    for(int i=0;i<foundTokens.size();i++) {
+      char[] machineCode = foundTokens.get(i).toMachineCode();
+      for(int j=0;j<machineCode.length;j++) {
+        result[i*4+j] = machineCode[j];
       }
     }
 
-    return null;
+    return result;
   }
 
   /* s must be an even-length string. */
@@ -281,7 +324,7 @@ public static class Assembler {
     return data;
   }
   
-  public static char findCharIndex(char c) {
+  public static char findCharIndex(char c) {    
     for(char i=0;i<chars.length();i++) {
       if(chars.charAt(i) == c) {
         return i;

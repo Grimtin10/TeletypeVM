@@ -34,17 +34,23 @@ public class CPU {
       RAM[i] = (char)((int)chars[i]);
     }
   }
-
-  public void loadASM(String name) {
-    System.err.println("ERROR: CPU.loadASM() is deprecated! Use Assembler.assemble() instead!");
-    exit();
+  
+  public void load(char[] rom) {
+    if (rom.length <= RAM.length/2) {
+      println("Loading ROM. Size: " + rom.length + " bytes.");
+    } else {
+      System.err.println("Aborting! Max ROM size is " + RAM.length/2 + " bytes. ROM is " + rom.length + " bytes.");
+      exit();
+    }
+    for (int i=0; i<rom.length; i++) {
+      RAM[i] = rom[i];
+    }
   }
 
   public void tick() {
     if (keyJumped) {
       pc = keyPC;
       keyJumped = false;
-      println("jumping to", hex(keyPC, 4));
     }
     char opcode = (char)(RAM[pc] & 0x00FF);
     switch(opcode) {
