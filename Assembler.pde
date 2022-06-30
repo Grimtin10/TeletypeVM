@@ -1,57 +1,77 @@
 //!!!!DO NOT FORMAT!!!!
 public static class Assembler {
-  private static Argument imm8               = new Argument(true, false, false, false);
-  private static Argument imm16              = new Argument(false, true, false, false);
-  private static Argument reg                = new Argument(false, false, true, false);
-  private static Argument mem                = new Argument(false, false, false, true);
-  private static Argument imm8_imm16         = new Argument(true, true, false, false);
-  private static Argument imm8_reg           = new Argument(true, false, true, false);
-  private static Argument imm8_mem           = new Argument(true, false, false, true);
-  private static Argument imm16_reg          = new Argument(false, true, true, false);
-  private static Argument imm16_mem          = new Argument(false, true, false, true);
-  private static Argument reg_mem            = new Argument(false, false, false, true);
-  private static Argument imm8_imm16_reg     = new Argument(true, true, true, false);
-  private static Argument imm8_imm16_mem     = new Argument(true, true, false, true);
-  private static Argument imm8_reg_mem       = new Argument(true, false, false, true);
-  private static Argument imm16_reg_mem      = new Argument(false, true, false, true);
-  private static Argument imm8_imm16_reg_mem = new Argument(true, true, true, true);
+  private static ArgumentType imm8               = new ArgumentType(true, false, false, false);
+  private static ArgumentType imm16              = new ArgumentType(false, true, false, false);
+  private static ArgumentType reg                = new ArgumentType(false, false, true, false);
+  private static ArgumentType mem                = new ArgumentType(false, false, false, true);
+  private static ArgumentType imm8_imm16         = new ArgumentType(true, true, false, false);
+  private static ArgumentType imm8_reg           = new ArgumentType(true, false, true, false);
+  private static ArgumentType imm8_mem           = new ArgumentType(true, false, false, true);
+  private static ArgumentType imm16_reg          = new ArgumentType(false, true, true, false);
+  private static ArgumentType imm16_mem          = new ArgumentType(false, true, false, true);
+  private static ArgumentType reg_mem            = new ArgumentType(false, false, false, true);
+  private static ArgumentType imm8_imm16_reg     = new ArgumentType(true, true, true, false);
+  private static ArgumentType imm8_imm16_mem     = new ArgumentType(true, true, false, true);
+  private static ArgumentType imm8_reg_mem       = new ArgumentType(true, false, false, true);
+  private static ArgumentType imm16_reg_mem      = new ArgumentType(false, true, false, true);
+  private static ArgumentType imm8_imm16_reg_mem = new ArgumentType(true, true, true, true);
   
-  private static class Argument {
+  private static class ArgumentType {
     boolean imm8, imm16, reg, mem;
 
-    public Argument(boolean imm8, boolean imm16, boolean reg, boolean mem) {
+    public ArgumentType(boolean imm8, boolean imm16, boolean reg, boolean mem) {
       this.imm8 = imm8;
       this.imm16 = imm16;
       this.reg = reg;
       this.mem = mem;
     }
+    
+    public boolean match(ArgumentType argument) {
+      return (argument.imm8 == imm8) || (argument.imm16 == imm16) || (argument.reg == reg) || (argument.mem == mem);
+    }
   }
   
   private static class ArgumentToken {
+    String name;
     char startingChar;
     int len;
-    Argument type;
+    ArgumentType type;
     
-    public ArgumentToken(char startingChar, int len, Argument type) {
+    public ArgumentToken(String name, char startingChar, int len, ArgumentType type) {
+      this.name = name;
       this.startingChar = startingChar;
       this.len = len;
       this.type = type;
     }
+    
+    boolean match(String s) {
+      return (s.length() - 1 == len) && (s.charAt(0) == startingChar);
+    }
   }
 
-  private static class Token {
+  private static class TokenType {
     String word;
     byte opcode;
-    Argument[] argTypes;
-    char[][] argValues;
+    ArgumentType[] arguments;
 
-    public Token(String word, int opcode, Argument[] argTypes) {
+    public TokenType(String word, int opcode, ArgumentType[] arguments) {
       this.word = word;
       this.opcode = (byte)opcode;
-      this.argTypes = argTypes;
-      this.argValues = new char[argTypes.length][3];
+      this.arguments = arguments;
     }
-
+    
+    public boolean match(ArgumentType[] arguments) {
+      if(arguments.length != this.arguments.length) {
+        return false;
+      }
+      
+      boolean match = true;
+      for(int i=0;i<arguments.length;i++) {
+        match = match && arguments[i].match(this.arguments[i]);
+      }
+      return match;
+    }
+    
     //#XXXX - imm16
     //#XX - imm8
     //'X' - imm8 (char)
@@ -59,47 +79,67 @@ public static class Assembler {
     //$XXXX - mem
   }
   
+  private static class Argument {
+    ArgumentType type;
+    byte[] value;
+    
+    public Argument(ArgumentType type, byte[] value) {
+      this.type = type;
+      this.value = value;
+    }
+  }
+    
+  private static class Token {
+    TokenType type;
+    Argument[] args;
+    
+    public Token(TokenType type, Argument[] args) {
+      this.type = type;
+      this.args = args;
+    }
+  }
+  
   //!!!!DO NOT FORMAT!!!!
-  static Token[] tokens = {
-    new Token("NOP",     0x00, new Argument[]{}), 
-    new Token("PUSHCHR", 0x01, new Argument[]{imm8}), 
-    new Token("POPCHR",  0x02, new Argument[]{}), 
-    new Token("JMP",     0x03, new Argument[]{imm16}), 
-    new Token("MOV",     0x04, new Argument[]{reg, reg}), 
-    new Token("MOV",     0x05, new Argument[]{reg, imm16}),
-    new Token("JMPGT",   0x06, new Argument[]{imm16}), 
-    new Token("JMPLT",   0x07, new Argument[]{imm16}), 
-    new Token("JMPZ",    0x08, new Argument[]{imm16}), 
-    new Token("JMPGT",   0x09, new Argument[]{}),
-    new Token("JMPLT",   0x0A, new Argument[]{}), 
-    new Token("JMPZ",    0x0B, new Argument[]{}), 
-    new Token("ADD",     0x0C, new Argument[]{reg, reg}), 
-    new Token("ADD",     0x0D, new Argument[]{reg, imm16}), 
-    new Token("SUB",     0x0E, new Argument[]{reg, reg}), 
-    new Token("SUB",     0x0F, new Argument[]{reg, imm16}), 
-    new Token("JMPE",    0x10, new Argument[]{imm16}), 
-    new Token("JMPE",    0x11, new Argument[]{}), 
-    new Token("KEYSET",  0x12, new Argument[]{imm16}), 
-    new Token("CALL",    0x13, new Argument[]{imm16}), 
-    new Token("RET",     0x14, new Argument[]{}), 
-    new Token("SHR",     0x15, new Argument[]{reg, reg}),
-    new Token("SHR",     0x16, new Argument[]{reg, imm16}), 
-    new Token("SHL",     0x17, new Argument[]{reg, reg}), 
-    new Token("SHL",     0x18, new Argument[]{reg, imm16}), 
-    new Token("OR",      0x19, new Argument[]{reg, reg}), 
-    new Token("OR",      0x1A, new Argument[]{reg, imm16}), 
-    new Token("AND",     0x1B, new Argument[]{reg, reg}), 
-    new Token("AND",     0x1C, new Argument[]{reg, imm16}), 
-    new Token("XOR",     0x1D, new Argument[]{reg, reg}), 
-    new Token("XOR",     0x1E, new Argument[]{reg, imm16}), 
-    new Token("HALT",    0xFF, new Argument[]{}), 
+  static TokenType[] tokens = {
+    new TokenType("NOP",     0x00, new ArgumentType[]{}), 
+    new TokenType("PUSHCHR", 0x01, new ArgumentType[]{imm8}), 
+    new TokenType("POPCHR",  0x02, new ArgumentType[]{}), 
+    new TokenType("JMP",     0x03, new ArgumentType[]{imm16}), 
+    new TokenType("MOV",     0x04, new ArgumentType[]{reg, reg}), 
+    new TokenType("MOV",     0x05, new ArgumentType[]{reg, imm16}),
+    new TokenType("JMPGT",   0x06, new ArgumentType[]{imm16}), 
+    new TokenType("JMPLT",   0x07, new ArgumentType[]{imm16}), 
+    new TokenType("JMPZ",    0x08, new ArgumentType[]{imm16}), 
+    new TokenType("JMPGT",   0x09, new ArgumentType[]{}),
+    new TokenType("JMPLT",   0x0A, new ArgumentType[]{}), 
+    new TokenType("JMPZ",    0x0B, new ArgumentType[]{}), 
+    new TokenType("ADD",     0x0C, new ArgumentType[]{reg, reg}), 
+    new TokenType("ADD",     0x0D, new ArgumentType[]{reg, imm16}), 
+    new TokenType("SUB",     0x0E, new ArgumentType[]{reg, reg}), 
+    new TokenType("SUB",     0x0F, new ArgumentType[]{reg, imm16}), 
+    new TokenType("JMPE",    0x10, new ArgumentType[]{imm16}), 
+    new TokenType("JMPE",    0x11, new ArgumentType[]{}), 
+    new TokenType("KEYSET",  0x12, new ArgumentType[]{imm16}), 
+    new TokenType("CALL",    0x13, new ArgumentType[]{imm16}), 
+    new TokenType("RET",     0x14, new ArgumentType[]{}), 
+    new TokenType("SHR",     0x15, new ArgumentType[]{reg, reg}),
+    new TokenType("SHR",     0x16, new ArgumentType[]{reg, imm16}), 
+    new TokenType("SHL",     0x17, new ArgumentType[]{reg, reg}), 
+    new TokenType("SHL",     0x18, new ArgumentType[]{reg, imm16}), 
+    new TokenType("OR",      0x19, new ArgumentType[]{reg, reg}), 
+    new TokenType("OR",      0x1A, new ArgumentType[]{reg, imm16}), 
+    new TokenType("AND",     0x1B, new ArgumentType[]{reg, reg}), 
+    new TokenType("AND",     0x1C, new ArgumentType[]{reg, imm16}), 
+    new TokenType("XOR",     0x1D, new ArgumentType[]{reg, reg}), 
+    new TokenType("XOR",     0x1E, new ArgumentType[]{reg, imm16}), 
+    new TokenType("HALT",    0xFF, new ArgumentType[]{}), 
   };
   
   static ArgumentToken[] argumentTokens = {
-    new ArgumentToken('#', 2, imm8),
-    new ArgumentToken('#', 4, imm16),
-    new ArgumentToken('R', 2, reg),
-    new ArgumentToken('$', 4, mem),
+    new ArgumentToken("imm8",  '#', 2, imm8),
+    new ArgumentToken("imm16", '#', 4, imm16),
+    new ArgumentToken("reg",   'R', 1, reg),
+    new ArgumentToken("mem",   '$', 4, mem),
   };
 
   public static char[] assemble(String[] file) {
@@ -129,11 +169,41 @@ public static class Assembler {
       if(line.length() > 0) {
         String[] words = file[i].split(" ");
         
-        for(int j=0;j<tokens.length;j++) {
-          if(tokens[j].word.equals(words[0])) {
-            println("Parser.Tokenizer: Found token " + words[0] + " on line " + i + " (opcode: " + hex(tokens[j].opcode, 2) + ")");
-            break;
+        ArrayList<ArgumentToken> arguments = new ArrayList<ArgumentToken>();
+        
+        for(int j=1;j<words.length;j++) {
+          for(int k=0;k<argumentTokens.length;k++) {
+            if(argumentTokens[k].match(words[j])) {
+              arguments.add(argumentTokens[k]);
+              println("Parser.Tokenizer: Found argument " + argumentTokens[k].name + " on line " + i);
+            }
           }
+        }
+        
+        ArgumentType[] args = new ArgumentType[arguments.size()];
+        for(int j=0;j<args.length;j++) {
+          args[j] = arguments.get(j).type;
+        }
+        
+        boolean foundToken = false;
+        
+        Argument[] argumentValues = new Argument[args.length];
+        
+        for(int j=0;j<argumentValues.length;j++) {
+          
+        }
+        
+        for(int j=0;j<tokens.length;j++) {          
+          if(tokens[j].word.equals(words[0]) && tokens[j].match(args)) {
+            println("Parser.Tokenizer: Found token " + words[0] + " on line " + i + " (opcode: " + hex(tokens[j].opcode, 2) + ")");
+            foundTokens.add(new Token(tokens[j], argumentValues));
+            foundToken = true;
+            break;
+          } 
+        }
+        
+        if(!foundToken) {
+          println("Could not find any tokens on line " + line);
         }
       }
     }

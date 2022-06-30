@@ -74,30 +74,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -109,16 +109,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
@@ -168,30 +168,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -203,16 +203,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
@@ -226,30 +226,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -261,16 +261,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
@@ -322,30 +322,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -357,16 +357,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
@@ -380,30 +380,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -415,16 +415,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
@@ -438,30 +438,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -473,16 +473,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
@@ -496,30 +496,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -531,16 +531,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
@@ -554,30 +554,30 @@ public class CPU {
 
         char val = 0x0000;
         switch(reg1) {
-        case 0x00:
+        case 0x0A:
           val = a;
           break;
-        case 0x01:
+        case 0x0B:
           val = b;
           break;
-        case 0x02:
+        case 0x0C:
           val = c;
           break;
-        case 0x03:
+        case 0x0D:
           val = d;
           break;
         }
         switch(reg2) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           a = val;
           break;
-        case 0x02:
+        case 0x0C:
           a = val;
           break;
-        case 0x03:
+        case 0x0D:
           a = val;
           break;
         }
@@ -589,16 +589,16 @@ public class CPU {
         char val = (char)((RAM[pc + 2] << 8) | (RAM[pc + 3]));
         
         switch(reg) {
-        case 0x00:
+        case 0x0A:
           a = val;
           break;
-        case 0x01:
+        case 0x0B:
           b = val;
           break;
-        case 0x02:
+        case 0x0C:
           c = val;
           break;
-        case 0x03:
+        case 0x0D:
           d = val;
           break;
         }
