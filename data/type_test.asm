@@ -1,7 +1,8 @@
 KEYSET :keypressed
 JMP #0000
 :keypressed
-MOV 0D #7689
+MOV RD RA
+
 MOV RA #0041
 JMPE :A
 MOV RA #0042
